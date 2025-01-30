@@ -279,7 +279,7 @@ Have you been to any of these places? Share your experiences in the comments bel
         commentBox.innerHTML = `
             <p>${data.text}</p>
             <span class="timestamp">${new Date(data.timestamp).toLocaleString()}</span>
-            <button class="like-button" onclick="likeComment('${doc.id}', ${data.likes || 0})">❤️ ${data.likes || 0}</button>
+            <button class="like-button" onclick="likeComment('${doc.id}', ${data.likes})">❤️ ${data.likes}</button>
             <button class="delete-button" onclick="deleteComment('${doc.id}')">🗑 Delete</button>
         `;
         commentsSection.appendChild(commentBox);
