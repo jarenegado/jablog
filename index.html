@@ -86,6 +86,76 @@
         .home-button:hover {
             background-color: #d618bd;
         }
+       
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 20px;
+        background-color: #f8f9fa;
+    }
+    #commentForm {
+        margin-bottom: 10px;
+    }
+    textarea {
+        width: 80%;
+        height: 60px;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        resize: none;
+    }
+    button {
+        background-color: #1DB954;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 5px;
+    }
+    button:hover {
+        background-color: #17a34a;
+    }
+    .comment-box {
+        background: white;
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin: 5px auto;
+        width: 80%;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .comment-content {
+        display: flex;
+        align-items: center;
+    }
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+    .comment-text {
+        display: flex;
+        flex-direction: column;
+        text-align: left;
+    }
+    .timestamp {
+        font-size: 12px;
+        color: gray;
+    }
+    .delete-btn {
+        background-color: red;
+        padding: 5px;
+        font-size: 12px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+    .delete-btn:hover {
+        background-color: darkred;
+    }
     </style>
 </head>
 <body>
@@ -99,18 +169,33 @@
         <img src="ja7.jpg" alt="My Travel Photo" class="logo">
         <p>From the vibrant streets of Bangkok to the serene beaches of Phuket, Thailand is a country that never fails to amaze. The rich culture, delicious street food, and stunning temples make every visit special. I also explored Chiang Mai, known for its beautiful mountains and elephant sanctuaries, and Ayutthaya, home to ancient ruins that tell a story of Thailand’s glorious past. Additionally, I ventured to Krabi, a breathtaking coastal province with limestone cliffs, turquoise waters, and island-hopping adventures to Railay Beach and Phi Phi Islands.</p>
     </div>
+        <form id="commentForm">
+    <textarea id="commentInput" placeholder="Write a comment..." required></textarea><br>
+    <button type="submit">Post Comment</button>
+</form>
+<div id="commentsSection"></div>
 
         <h1>INDONESIA</h1>
     <div class="section">
         <img src="ja14.jpg" alt="My Travel Photo" class="logo">
         <p>Bali’s picturesque landscapes, stunning waterfalls, and tranquil temples were an absolute highlight of my trip. The vibrant culture and warm hospitality of the locals made my stay even more memorable. I also had the chance to visit Jakarta, the bustling capital city, and Yogyakarta, home to the magnificent Borobudur Temple, one of the world’s greatest Buddhist monuments. My journey also took me to Lombok, a lesser-known island with pristine beaches, the majestic Mount Rinjani, and the laid-back Gili Islands, where I enjoyed snorkeling and diving among vibrant coral reefs.</p>
     </div>
+        <form id="commentForm">
+    <textarea id="commentInput" placeholder="Write a comment..." required></textarea><br>
+    <button type="submit">Post Comment</button>
+</form>
+<div id="commentsSection"></div>
 
         <h1>MALAYSIA</h1>
     <div class="section">
         <img src="ja12.jpg" alt="My Travel Photo" class="logo">
         <p>I had the chance to visit Kuala Lumpur, where I marveled at the iconic Petronas Towers. Exploring the bustling street markets and indulging in the diverse cuisine were some of the highlights of my trip. I also visited Penang, famous for its well-preserved heritage sites and street art, as well as the stunning Cameron Highlands, known for its tea plantations and cool weather. Additionally, I explored Langkawi, an island paradise with stunning beaches, lush rainforests, and the famous Langkawi Sky Bridge, offering panoramic views of the Andaman Sea.</p>
     </div>
+        <form id="commentForm">
+    <textarea id="commentInput" placeholder="Write a comment..." required></textarea><br>
+    <button type="submit">Post Comment</button>
+</form>
+<div id="commentsSection"></div>
 
         <h1>VIETNAM</h1>
     <div class="section">
@@ -118,6 +203,11 @@
         <p>Vietnam stole my heart with its breathtaking scenery and rich history. From the limestone karsts of Ha Long Bay to the bustling streets of Ho Chi Minh City, every corner of the country offers something unique. I also explored Hanoi, the capital city filled with French colonial architecture and lively markets, and Hoi An, a charming town known for its lantern-lit streets and ancient temples. My travels also took me to Da Nang, home to the stunning Marble Mountains and My Khe Beach, and Sapa, a mountainous region with terraced rice fields and vibrant ethnic minority communities.</p>
     
     </div>
+        <form id="commentForm">
+    <textarea id="commentInput" placeholder="Write a comment..." required></textarea><br>
+    <button type="submit">Post Comment</button>
+</form>
+<div id="commentsSection"></div>
         <nav>
                 <p>
                     <a href="https://jarenegado.github.io/jangallery/" class="nav-button">Dami pa Picture Dito, Click Mo</a>
@@ -177,6 +267,90 @@
 Have you been to any of these places? Share your experiences in the comments below! Let’s keep exploring together! ✈️🌍</strong></p>
         <a href="https://jarenegado.github.io/ja/" class="home-button">Balik Bahay</a>
     </div>
+
+        <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let commentsSection = document.getElementById("commentsSection");
+
+        // Load comments from local storage
+        let savedComments = JSON.parse(localStorage.getItem("comments")) || [];
+        savedComments.forEach(comment => {
+            addCommentToPage(comment.text, comment.timestamp, comment.avatar);
+        });
+
+        document.getElementById("commentForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            let commentInput = document.getElementById("commentInput");
+            let commentText = commentInput.value.trim();
+
+            if (commentText) {
+                let timestamp = new Date().toLocaleString();
+                let avatar = getRandomAvatar();
+                addCommentToPage(commentText, timestamp, avatar);
+
+                // Save comment to local storage
+                savedComments.push({ text: commentText, timestamp, avatar });
+                localStorage.setItem("comments", JSON.stringify(savedComments));
+
+                commentInput.value = ""; // Clear input field
+            }
+        });
+
+        function addCommentToPage(commentText, timestamp, avatar) {
+            let commentBox = document.createElement("div");
+            commentBox.classList.add("comment-box");
+
+            let commentContent = document.createElement("div");
+            commentContent.classList.add("comment-content");
+
+            let avatarImg = document.createElement("img");
+            avatarImg.src = avatar;
+            avatarImg.classList.add("avatar");
+
+            let textWrapper = document.createElement("div");
+            textWrapper.classList.add("comment-text");
+
+            let commentTextEl = document.createElement("p");
+            commentTextEl.textContent = commentText;
+
+            let timestampEl = document.createElement("span");
+            timestampEl.classList.add("timestamp");
+            timestampEl.textContent = timestamp;
+
+            let deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "❌";
+            deleteBtn.classList.add("delete-btn");
+
+            // Delete comment when button is clicked
+            deleteBtn.addEventListener("click", function () {
+                commentsSection.removeChild(commentBox);
+                
+                // Remove from local storage
+                savedComments = savedComments.filter(c => c.text !== commentText);
+                localStorage.setItem("comments", JSON.stringify(savedComments));
+            });
+
+            textWrapper.appendChild(commentTextEl);
+            textWrapper.appendChild(timestampEl);
+            commentContent.appendChild(avatarImg);
+            commentContent.appendChild(textWrapper);
+            commentBox.appendChild(commentContent);
+            commentBox.appendChild(deleteBtn);
+            commentsSection.appendChild(commentBox);
+        }
+
+        function getRandomAvatar() {
+            let avatars = [
+                "https://i.pravatar.cc/40?img=1",
+                "https://i.pravatar.cc/40?img=2",
+                "https://i.pravatar.cc/40?img=3",
+                "https://i.pravatar.cc/40?img=4",
+                "https://i.pravatar.cc/40?img=5"
+            ];
+            return avatars[Math.floor(Math.random() * avatars.length)];
+        }
+    });
+</script>
        
 </body>
 </html>
