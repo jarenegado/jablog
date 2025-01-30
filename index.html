@@ -3,6 +3,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JA's Travel Blog</title>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js"></script>
     <style>
         body {
             font-family: Century Gothic, sans-serif;
@@ -96,66 +98,56 @@
     #commentForm {
         margin-bottom: 10px;
     }
-    textarea {
-        width: 80%;
-        height: 60px;
-        padding: 10px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        resize: none;
-    }
-    button {
-        background-color: #1DB954;
-        color: white;
-        border: none;
-        padding: 10px 15px;
-        border-radius: 10px;
-        cursor: pointer;
-        margin-top: 5px;
-    }
-    button:hover {
-        background-color: #000;
-    }
-    .comment-box {
-        background: white;
-        border: 1px solid #ddd;
-        padding: 10px;
-        margin: 5px auto;
-        width: 70%;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    .comment-content {
-        display: flex;
-        align-items: center;
-    }
-    .avatar {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        margin-right: 10px;
-    }
-    .comment-text {
-        display: flex;
-        flex-direction: column;
-        text-align: left;
-    }
-    .timestamp {
-        font-size: 10px;
-        color: gray;
-    }
-    .delete-btn {
-        background-color: red;
-        padding: 5px;
-        font-size: 10px;
-        cursor: pointer;
-        border-radius: 5px;
-    }
-    .delete-btn:hover {
-        background-color: darkred;
-    }
+    body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #f8f9fa;
+        }
+        textarea {
+            width: 80%;
+            height: 60px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            resize: none;
+        }
+        button {
+            background-color: #1DB954;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        button:hover {
+            background-color: #17a34a;
+        }
+        .comment-box {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 5px auto;
+            width: 80%;
+            border-radius: 5px;
+            text-align: left;
+        }
+        .timestamp {
+            font-size: 12px;
+            color: gray;
+        }
+        .like-button {
+            background: none;
+            border: none;
+            color: #ff4757;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+        .like-button:hover {
+            color: #e84118;
+        }
     </style>
 </head>
 <body>
@@ -249,91 +241,65 @@
             </nav>
         <h1><strong>WHAT'S NEXT?</strong></h1>
         <p><strong>My journey as a traveler is far from over. There are still countless destinations to explore, new cultures to experience, and more stories to tell. Through my blog, I hope to inspire fellow adventurers to step out of their comfort zones and discover the beauty of the world. Stay tuned for more travel guides, itineraries, and personal stories from my adventures.
-Have you been to any of these places? Share your experiences in the comments below! Let’s keep exploring together! ✈️🌍</strong></p>
-           <form id="commentForm">
-    <textarea id="commentInput" placeholder="Write a comment..." required></textarea><br>
-    <button type="submit">Please Recommend</button>
-</form>
-<div id="commentsSection"></div>
+Have you been to any of these places? Share your experiences in the comments below! Let’s keep exploring together!</strong></p>
+           <h2>Leave a Comment</h2>
+    <textarea id="commentInput" placeholder="Write your comment..."></textarea><br>
+    <button onclick="submitComment()">Please Recommend</button>
+
+    <h3>Comments</h3>
+    <div id="commentsSection"></div>
         <a href="https://jarenegado.github.io/ja/" class="home-button">Balik Bahay</a>
     </div>
 
         <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        let commentsSection = document.getElementById("commentsSection");
-        let savedComments = JSON.parse(localStorage.getItem("comments")) || [];
-        savedComments.forEach(comment => {
-            addCommentToPage(comment.text, comment.timestamp, comment.avatar);
-        });
+        const firebaseConfig = {
+            apiKey: "AIzaSyBh14AuHe-3wrPZCHMOIq5b1htmw1b_oWM",
+            authDomain: "my-travel-blog-comments.firebaseapp.com",
+            projectId: "my-travel-blog-comments",
+            storageBucket: "my-travel-blog-comments.firebasestorage.app",
+            messagingSenderId: "472451020750",
+            appId: "1:472451020750:web:548ec6ccc3752b38415d9f"
+        };
 
-        document.getElementById("commentForm").addEventListener("submit", function (event) {
-            event.preventDefault();
-            let commentInput = document.getElementById("commentInput");
-            let commentText = commentInput.value.trim();
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-            if (commentText) {
-                let timestamp = new Date().toLocaleString();
-                let avatar = getRandomAvatar();
-                addCommentToPage(commentText, timestamp, avatar);
+        function submitComment() {
+            let commentText = document.getElementById("commentInput").value;
+            if (commentText.trim() === "") return;
 
-                savedComments.push({ text: commentText, timestamp, avatar });
-                localStorage.setItem("comments", JSON.stringify(savedComments));
-
-                commentInput.value = "";
-            }
-        });
-
-        function addCommentToPage(commentText, timestamp, avatar) {
-            let commentBox = document.createElement("div");
-            commentBox.classList.add("comment-box");
-
-            let commentContent = document.createElement("div");
-            commentContent.classList.add("comment-content");
-
-            let avatarImg = document.createElement("img");
-            avatarImg.src = avatar;
-            avatarImg.classList.add("avatar");
-
-            let textWrapper = document.createElement("div");
-            textWrapper.classList.add("comment-text");
-
-            let commentTextEl = document.createElement("p");
-            commentTextEl.textContent = commentText;
-
-            let timestampEl = document.createElement("span");
-            timestampEl.classList.add("timestamp");
-            timestampEl.textContent = timestamp;
-
-            let deleteBtn = document.createElement("button");
-            deleteBtn.textContent = "❌";
-            deleteBtn.classList.add("delete-btn");
-            deleteBtn.addEventListener("click", function () {
-                commentsSection.removeChild(commentBox);
-                savedComments = savedComments.filter(c => c.text !== commentText);
-                localStorage.setItem("comments", JSON.stringify(savedComments));
+            db.collection("comments").add({
+                text: commentText,
+                timestamp: new Date().toISOString(),
+                likes: 0
+            }).then(() => {
+                document.getElementById("commentInput").value = "";
             });
-
-            textWrapper.appendChild(commentTextEl);
-            textWrapper.appendChild(timestampEl);
-            commentContent.appendChild(avatarImg);
-            commentContent.appendChild(textWrapper);
-            commentBox.appendChild(commentContent);
-            commentBox.appendChild(deleteBtn);
-            commentsSection.appendChild(commentBox);
         }
 
-        function getRandomAvatar() {
-            let avatars = [
-                "https://i.pravatar.cc/40?img=1",
-                "https://i.pravatar.cc/40?img=2",
-                "https://i.pravatar.cc/40?img=3",
-                "https://i.pravatar.cc/40?img=4",
-                "https://i.pravatar.cc/40?img=5"
-            ];
-            return avatars[Math.floor(Math.random() * avatars.length)];
+        db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+            let commentsSection = document.getElementById("commentsSection");
+            commentsSection.innerHTML = "";
+            snapshot.forEach(doc => {
+                let data = doc.data();
+                let commentBox = document.createElement("div");
+                commentBox.classList.add("comment-box");
+                commentBox.innerHTML = `
+                    <p>${data.text}</p>
+                    <span class="timestamp">${new Date(data.timestamp).toLocaleString()}</span>
+                    <button class="like-button" onclick="likeComment('${doc.id}', ${data.likes})">❤️ ${data.likes}</button>
+                `;
+                commentsSection.appendChild(commentBox);
+            });
+        });
+
+             function likeComment(commentId, currentLikes) {
+            let newLikes = currentLikes + 1;
+            db.collection("comments").doc(commentId).update({
+                likes: newLikes
+            });
         }
-    });
-</script>
-       
+    </script>
+
 </body>
 </html>
