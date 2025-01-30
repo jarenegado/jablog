@@ -3,8 +3,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JA's Travel Blog</title>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
         <style>
         body {
             font-family: Century Gothic, sans-serif;
@@ -242,54 +242,53 @@ Have you been to any of these places? Share your experiences in the comments bel
     </div>
 
         <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBh14AuHe-3wrPZCHMOIq5b1htmw1b_oWM",
-            authDomain: "my-travel-blog-comments.firebaseapp.com",
-            projectId: "my-travel-blog-comments",
-            storageBucket: "my-travel-blog-comments.firebasestorage.app",
-            messagingSenderId: "472451020750",
-            appId: "1:472451020750:web:548ec6ccc3752b38415d9f"
-        };
+         const firebaseConfig = {
+        apiKey: "AIzaSyBh14AuHe-3wrPZCHMOIq5b1htmw1b_oWM",
+        authDomain: "my-travel-blog-comments.firebaseapp.com",
+        projectId: "my-travel-blog-comments",
+        storageBucket: "my-travel-blog-comments.firebaseapp.com",
+        messagingSenderId: "472451020750",
+        appId: "1:472451020750:web:548ec6ccc3752b38415d9f"
+    };
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-        function submitComment() {
-            let commentText = document.getElementById("commentInput").value;
-            if (commentText.trim() === "") return;
+    function submitComment() {
+        let commentText = document.getElementById("commentInput").value;
+        if (commentText.trim() === "") return;
 
-            db.collection("comments").add({
-                text: commentText,
-                timestamp: new Date().toISOString(),
-                likes: 0
-            }).then(() => {
-                document.getElementById("commentInput").value = "";
-            });
-        }
-
-        db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
-            let commentsSection = document.getElementById("commentsSection");
-            commentsSection.innerHTML = "";
-            snapshot.forEach(doc => {
-                let data = doc.data();
-                let commentBox = document.createElement("div");
-                commentBox.classList.add("comment-box");
-                commentBox.innerHTML = `
-                    <p>${data.text}</p>
-                    <span class="timestamp">${new Date(data.timestamp).toLocaleString()}</span>
-                    <button class="like-button" onclick="likeComment('${doc.id}', ${data.likes})">❤️ ${data.likes}</button>
-                `;
-                commentsSection.appendChild(commentBox);
-            });
+        db.collection("comments").add({
+            text: commentText,
+            timestamp: new Date().toISOString(),
+            likes: 0
+        }).then(() => {
+            document.getElementById("commentInput").value = "";
         });
+    }
 
-             function likeComment(commentId, currentLikes) {
-            let newLikes = currentLikes + 1;
-            db.collection("comments").doc(commentId).update({
-                likes: newLikes
-            });
-        }
-    </script>
+    db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+        let commentsSection = document.getElementById("commentsSection");
+        commentsSection.innerHTML = "";
+        snapshot.forEach(doc => {
+            let data = doc.data();
+            let commentBox = document.createElement("div");
+            commentBox.classList.add("comment-box");
+            commentBox.innerHTML = `
+                <p>${data.text}</p>
+                <span class="timestamp">${new Date(data.timestamp).toLocaleString()}</span>
+                <button class="like-button" onclick="likeComment('${doc.id}', ${data.likes})">❤️ ${data.likes}</button>
+            `;
+            commentsSection.appendChild(commentBox);
+        });
+    });
 
+    function likeComment(commentId, currentLikes) {
+        let newLikes = currentLikes + 1;
+        db.collection("comments").doc(commentId).update({
+            likes: newLikes
+        });
+    }
+</script>
 </body>
 </html>
