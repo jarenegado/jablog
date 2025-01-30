@@ -340,8 +340,6 @@ Have you been to any of these places? Share your experiences in the comments bel
         <script>
     document.addEventListener("DOMContentLoaded", function () {
         let commentsSection = document.getElementById("commentsSection");
-
-        // Load comments from local storage
         let savedComments = JSON.parse(localStorage.getItem("comments")) || [];
         savedComments.forEach(comment => {
             addCommentToPage(comment.text, comment.timestamp, comment.avatar);
@@ -357,11 +355,10 @@ Have you been to any of these places? Share your experiences in the comments bel
                 let avatar = getRandomAvatar();
                 addCommentToPage(commentText, timestamp, avatar);
 
-                // Save comment to local storage
                 savedComments.push({ text: commentText, timestamp, avatar });
                 localStorage.setItem("comments", JSON.stringify(savedComments));
 
-                commentInput.value = ""; // Clear input field
+                commentInput.value = "";
             }
         });
 
@@ -389,12 +386,8 @@ Have you been to any of these places? Share your experiences in the comments bel
             let deleteBtn = document.createElement("button");
             deleteBtn.textContent = "❌";
             deleteBtn.classList.add("delete-btn");
-
-            // Delete comment when button is clicked
             deleteBtn.addEventListener("click", function () {
                 commentsSection.removeChild(commentBox);
-                
-                // Remove from local storage
                 savedComments = savedComments.filter(c => c.text !== commentText);
                 localStorage.setItem("comments", JSON.stringify(savedComments));
             });
