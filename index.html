@@ -296,6 +296,16 @@ function deleteComment(commentId) {
                 console.error("Error deleting comment: ", error);
             });
     }
+    function likeComment(commentId, currentLikes) {
+    let commentRef = db.collection("comments").doc(commentId);
+
+    commentRef.update({
+        likes: firebase.firestore.FieldValue.increment(1)
+    }).then(() => {
+        console.log("Like added!");
+    }).catch(error => {
+        console.error("Error liking comment: ", error);
+    });
 }
 </script>
 </body>
