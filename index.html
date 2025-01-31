@@ -268,7 +268,7 @@ function addComment(text) {
  function submitComment() {
         let commentText = document.getElementById("commentInput").value;
         if (commentText.trim() === "") return;
-
+     }
         db.collection("comments").add({
             text: commentText,
             timestamp: new Date().toISOString(),
