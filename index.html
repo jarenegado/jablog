@@ -257,12 +257,29 @@ function addComment(text) {
     if (!user) {
         alert("You must be logged in to comment.");
         return;
-    }
+
     db.collection("comments").add({
         text: text,
         uid: user.uid,
         username: user.displayName,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+}
+    function loadComments() {
+    const user = firebase.auth().currentUser;
+    db.collection("comments").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+        const commentsContainer = document.getElementById("comments");
+        commentsContainer.innerHTML = ""; // Clear existing comments
+        snapshot.forEach((doc) => {
+            const commentData = doc.data();
+            const commentId = doc.id;
+            const commentDiv = document.createElement("div");
+            commentDiv.innerHTML = `
+                <p>${commentData.username}: ${commentData.text}</p>
+                ${user && user.uid === commentData.uid ? `<button onclick="deleteComment('${commentId}')">Delete</button>` : ""}
+            `;
+            commentsContainer.appendChild(commentDiv);
+        });
     });
 }
 function deleteComment(commentId) {
@@ -282,44 +299,6 @@ function deleteComment(commentId) {
         }
     });
 }
-function loadComments() {
-    const user = firebase.auth().currentUser;
-    db.collection("comments").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
-        const commentsContainer = document.getElementById("comments");
-        commentsContainer.innerHTML = "";
-        snapshot.forEach((doc) => {
-            const commentData = doc.data();
-            const commentId = doc.id;
-            const commentDiv = document.createElement("div");
-            commentDiv.innerHTML = `
-                <p>${commentData.username}: ${commentData.text}</p>
-                ${user && user.uid === commentData.uid ? `<button onclick="deleteComment('${commentId}')">Delete</button>` : ""}
-            `;
-            commentsContainer.appendChild(commentDiv);
-        });
-    db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
-    let commentsSection = document.getElementById("commentsSection");
-    commentsSection.innerHTML = "";
-    snapshot.forEach(doc => {
-        let data = doc.data();
-        let commentBox = document.createElement("div");
-        commentBox.classList.add("comment-box");
-        commentBox.innerHTML = `
-            <p>${data.text}</p>
-            <span class="timestamp">${new Date(data.timestamp).toLocaleString()}</span>
-            <button class="like-button" onclick="likeComment('${doc.id}', ${data.likes})">❤️ ${data.likes}</button>
-            <button class="delete-button" onclick="deleteComment('${doc.id}')">🗑 Delete</button>
-        `;
-        commentsSection.appendChild(commentBox);
-    });
-});
-
-    function likeComment(commentId, currentLikes) {
-        let newLikes = currentLikes + 1;
-        db.collection("comments").doc(commentId).update({
-            likes: newLikes
-        });
-    }
 db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
     let commentsSection = document.getElementById("commentsSection");
     commentsSection.innerHTML = "";
@@ -343,7 +322,17 @@ db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
             likes: newLikes
         });
     }
-
+ function deleteComment(commentId) {
+    if (confirm("Are you sure you want to delete this comment?")) {
+        db.collection("comments").doc(commentId).delete()
+            .then(() => {
+                console.log("Comment deleted successfully");
+            })
+            .catch(error => {
+                console.error("Error deleting comment: ", error);
+            });
+    }
+}
 </script>
 </body>
 </html>
