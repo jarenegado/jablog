@@ -265,25 +265,6 @@ function submitComment(text) {
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
 }
-
-function loadComments() {
-    const user = firebase.auth().currentUser;
-    db.collection("comments").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
-        const commentsContainer = document.getElementById("comments");
-        commentsContainer.innerHTML = "";
-        snapshot.forEach((doc) => {
-            const commentData = doc.data();
-            const commentId = doc.id;
-            const commentDiv = document.createElement("div");
-            commentDiv.innerHTML = `
-                <p>${commentData.username}: ${commentData.text}</p>
-                ${user && user.uid === commentData.uid ? `<button onclick="deleteComment('${commentId}')">Delete</button>` : ""}
-            `;
-            commentsContainer.appendChild(commentDiv);
-        });
-    });
-}
-
 function deleteComment(commentId) {
     const user = firebase.auth().currentUser;
     if (!user) return;
@@ -299,6 +280,23 @@ function deleteComment(commentId) {
         } else {
             alert("You can only delete your own comments.");
         }
+    });
+}
+function loadComments() {
+    const user = firebase.auth().currentUser;
+    db.collection("comments").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+        const commentsContainer = document.getElementById("comments");
+        commentsContainer.innerHTML = "";
+        snapshot.forEach((doc) => {
+            const commentData = doc.data();
+            const commentId = doc.id;
+            const commentDiv = document.createElement("div");
+            commentDiv.innerHTML = `
+                <p>${commentData.username}: ${commentData.text}</p>
+                ${user && user.uid === commentData.uid ? `<button onclick="deleteComment('${commentId}')">Delete</button>` : ""}
+            `;
+            commentsContainer.appendChild(commentDiv);
+        });
     });
 }
 </script>
