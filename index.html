@@ -257,7 +257,7 @@ Have you been to any of these places? Share your experiences in the comments bel
     if (!user) {
         alert("You must be logged in to comment.");
         return;
-
+    }
     db.collection("comments").add({
         text: text,
         uid: user.uid,
