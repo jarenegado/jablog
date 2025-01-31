@@ -5,138 +5,39 @@
     <title>JA's Travel Blog</title>
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
-  
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
+ 
         <style>
+       <style>
         body {
             font-family: Century Gothic, sans-serif;
-            font-weight: 250;
-            margin: 0;
-            padding: 0;
             background: url('ja29.jpg') no-repeat center center/cover;
             text-align: left;
-            }
+        }
         .container {
             max-width: 800px;
             margin: 10px auto;
             background: rgba(255, 255, 255, 0.5);
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: left;
-            }
-        .logo {
-            max-width: 300px;
-            margin-bottom: 0px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            }
-        .section {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-            }
-
-        .section img {
-            width: 120px;
-            height: auto;
-            margin-right: 15px;
-            }
-        .section p {
-            flex: 1;
-            }
-         nav ul {
-            list-style: none;
-            padding: 0;
-            }
-         nav ul li {
-            display: inline;
-            margin: 10px;
-            }
-        .nav-button {
-            background: #590808;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            text-decoration: none;
-            transition: background 0.3s ease;
-            }
-       .nav-button:hover {
-            background: #ff4500;
-            transform: scale(1.1);
-            }
-        h1 {
-            color: #000;
-            }
-        p {
-            color: #000;
-            line-height: 1.6;
-            }
-        .home-button {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #880E4F;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            }
-        .home-button:hover {
-            background-color: #d618bd;
-            }
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
-            background-color: #f8f9fa;
-            }
-        textarea {
+        }
+        textarea, button {
             width: 80%;
-            height: 60px;
             padding: 10px;
             border-radius: 10px;
-            border: 1px solid #ccc;
-            resize: none;
-            }
-        button {
-            background-color: #1DB954;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 5px;
-            }
-        button:hover {
-            background-color: #000;
-            }
+            margin: 5px 0;
+        }
         .comment-box {
             background: white;
-            border: 1px solid #ddd;
             padding: 10px;
             margin: 5px auto;
-            width: 80%;
             border-radius: 10px;
-            text-align: left;
-            font-size: 10px;
-            color: gray;
-            }
-        .timestamp {
-            font-size: 10px;
-            color: gray;
-            }
-        .like-button {
-            background: none;
-            border: none;
-            color: #ff4757;
+        }
+        .like-button, .delete-button {
             cursor: pointer;
-            font-size: 12px;
-            margin-left: 10px;
-            }
-        .like-button:hover {
-            color: #e84118;
-            }
+        }
     </style>
-</head>
+  </head>
 
 <body>
     <div class="container">
@@ -230,76 +131,131 @@
         <h1><strong>WHAT'S NEXT?</strong></h1>
         <p><strong>My journey as a traveler is far from over. There are still countless destinations to explore, new cultures to experience, and more stories to tell. Through my blog, I hope to inspire fellow adventurers to step out of their comfort zones and discover the beauty of the world. Stay tuned for more travel guides, itineraries, and personal stories from my adventures.
 Have you been to any of these places? Share your experiences in the comments below! Let’s keep exploring together!</strong></p>
-     
-           <h2>Comment, Suggest, Recommend</h2>
-    <textarea id="commentInput" placeholder="Write your comment..."></textarea><br>
-    <button onclick="submitComment()">Please Recommend</button>
+     <button id="loginBtn" onclick="signIn()">Sign In with Google</button>
+        <button id="logoutBtn" onclick="signOut()" style="display: none;">Sign Out</button>
+        <p id="userDisplay"></p>
 
-    <h3>Thanks for your Comments, Suggestions and Recommendations</h3>
-    <div id="commentsSection"></div>
-           
-        <a href="https://jarenegado.github.io/ja/" class="home-button">Balik Bahay</a>
+           <h2>Comment, Suggest, Recommend</h2>
+        <textarea id="commentInput" placeholder="Write your comment..."></textarea><br>
+        <button onclick="submitComment()">Please Recommend</button>
+
+        <h3>Thanks for your Comments, Suggestions and Recommendations</h3>
+        <div id="commentsSection"></div>
     </div>
 
-        <script>
-         const firebaseConfig = {
-        apiKey: "AIzaSyBh14AuHe-3wrPZCHMOIq5b1htmw1b_oWM",
-        authDomain: "my-travel-blog-comments.firebaseapp.com",
-        projectId: "my-travel-blog-comments",
-        storageBucket: "my-travel-blog-comments.firebaseapp.com",
-        messagingSenderId: "472451020750",
-        appId: "1:472451020750:web:548ec6ccc3752b38415d9f"
-    };
+         <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBh14AuHe-3wrPZCHMOIq5b1htmw1b_oWM",
+            authDomain: "my-travel-blog-comments.firebaseapp.com",
+            projectId: "my-travel-blog-comments",
+            storageBucket: "my-travel-blog-comments.appspot.com",
+            messagingSenderId: "472451020750",
+            appId: "1:472451020750:web:548ec6ccc3752b38415d9f"
+        };
 
-firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        
+        let currentUser = null;
+        const ADMIN_UID = "9TrtSw8f0baJv9Z7paR7ieEB7182";
 
-    function submitComment() {
-        let commentText = document.getElementById("commentInput").value;
-        if (commentText.trim() === "") return;
-
-        db.collection("comments").add({
-            text: commentText,
-            timestamp: new Date().toISOString(),
-            likes: 0
-        }).then(() => {
-            document.getElementById("commentInput").value = "";
-        });
-    }
-db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
-    let commentsSection = document.getElementById("commentsSection");
-    commentsSection.innerHTML = "";
-    snapshot.forEach(doc => {
-        let data = doc.data();
-        let commentBox = document.createElement("div");
-        commentBox.classList.add("comment-box");
-        commentBox.innerHTML = `
-            <p>${data.text}</p>
-            <span class="timestamp">${new Date(data.timestamp).toLocaleString()}</span>
-            <button class="like-button" onclick="likeComment('${doc.id}', ${data.likes})">❤️ ${data.likes}</button>
-            <button class="delete-button" onclick="deleteComment('${doc.id}')">🗑 Delete</button>
-        `;
-        commentsSection.appendChild(commentBox);
-    });
-});
-
-    function likeComment(commentId, currentLikes) {
-        let newLikes = currentLikes + 1;
-        db.collection("comments").doc(commentId).update({
-            likes: newLikes
-        });
-    }
-            function deleteComment(commentId) {
-    if (confirm("Are you sure you want to delete this comment?")) {
-        db.collection("comments").doc(commentId).delete()
-            .then(() => {
-                console.log("Comment deleted successfully");
-            })
-            .catch(error => {
-                console.error("Error deleting comment: ", error);
+        function signIn() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).then((result) => {
+                console.log("User signed in: ", result.user);
+            }).catch((error) => {
+                console.error("Error signing in: ", error);
             });
-    }
-}
-</script>
+        }
+
+        function signOut() {
+            auth.signOut().then(() => {
+                console.log("User signed out");
+            });
+        }
+
+        auth.onAuthStateChanged((user) => {
+            currentUser = user;
+            const loginBtn = document.getElementById("loginBtn");
+            const logoutBtn = document.getElementById("logoutBtn");
+            const userDisplay = document.getElementById("userDisplay");
+
+            if (user) {
+                loginBtn.style.display = "none";
+                logoutBtn.style.display = "block";
+                userDisplay.textContent = `Signed in as ${user.displayName}`;
+            } else {
+                loginBtn.style.display = "block";
+                logoutBtn.style.display = "none";
+                userDisplay.textContent = "";
+            }
+        });
+
+        function submitComment() {
+            if (!currentUser) {
+                alert("You must be signed in to comment.");
+                return;
+            }
+
+            let commentText = document.getElementById("commentInput").value;
+            if (commentText.trim() === "") return;
+
+            db.collection("comments").add({
+                text: commentText,
+                userId: currentUser.uid,
+                userName: currentUser.displayName,
+                timestamp: new Date().toISOString(),
+                likes: 0
+            }).then(() => {
+                document.getElementById("commentInput").value = "";
+            });
+        }
+
+        db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+            let commentsSection = document.getElementById("commentsSection");
+            commentsSection.innerHTML = "";
+            snapshot.forEach(doc => {
+                let data = doc.data();
+                let commentBox = document.createElement("div");
+                commentBox.classList.add("comment-box");
+
+                let deleteButton = "";
+                if (currentUser && (currentUser.uid === ADMIN_UID)) {
+                    deleteButton = `<button class="delete-button" onclick="deleteComment('${doc.id}')">🗑 Delete</button>`;
+                }
+
+                commentBox.innerHTML = `
+                    <p><strong>${data.userName}:</strong> ${data.text}</p>
+                    <span class="timestamp">${new Date(data.timestamp).toLocaleString()}</span>
+                    <button class="like-button" onclick="likeComment('${doc.id}', ${data.likes})">❤️ ${data.likes}</button>
+                    ${deleteButton}
+                `;
+                commentsSection.appendChild(commentBox);
+            });
+        });
+
+        function likeComment(commentId, currentLikes) {
+            let newLikes = currentLikes + 1;
+            db.collection("comments").doc(commentId).update({ likes: newLikes });
+        }
+
+        function deleteComment(commentId) {
+            if (!currentUser || currentUser.uid !== ADMIN_UID) {
+                alert("Only the admin can delete comments.");
+                return;
+            }
+
+            if (confirm("Are you sure you want to delete this comment?")) {
+                db.collection("comments").doc(commentId).delete()
+                    .then(() => {
+                        console.log("Comment deleted successfully");
+                    })
+                    .catch(error => {
+                        console.error("Error deleting comment: ", error);
+                    });
+            }
+        }
+    </script>
 </body>
 </html>
