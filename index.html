@@ -249,28 +249,15 @@ Have you been to any of these places? Share your experiences in the comments bel
         appId: "1:472451020750:web:548ec6ccc3752b38415d9f"
     };
 
- firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-    function submitComment() {
-        let commentText = document.getElementById("commentInput").value;
-        if (commentText.trim() === "") return;
-
-        db.collection("comments").add({
-            text: commentText,
-            timestamp: new Date().toISOString(),
-            likes: 0
-        }).then(() => {
-            document.getElementById("commentInput").value = "";
-        });
-    }
-    function addComment(text) {
+function addComment(text) {
     const user = firebase.auth().currentUser;
     if (!user) {
         alert("You must be logged in to comment.");
         return;
     }
-
     db.collection("comments").add({
         text: text,
         uid: user.uid,
@@ -278,50 +265,42 @@ Have you been to any of these places? Share your experiences in the comments bel
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
 }
-    function loadComments() {
-    const user = firebase.auth().currentUser;
 
+function loadComments() {
+    const user = firebase.auth().currentUser;
     db.collection("comments").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
         const commentsContainer = document.getElementById("comments");
         commentsContainer.innerHTML = "";
         snapshot.forEach((doc) => {
             const commentData = doc.data();
             const commentId = doc.id;
-
             const commentDiv = document.createElement("div");
             commentDiv.innerHTML = `
                 <p>${commentData.username}: ${commentData.text}</p>
                 ${user && user.uid === commentData.uid ? `<button onclick="deleteComment('${commentId}')">Delete</button>` : ""}
             `;
-
             commentsContainer.appendChild(commentDiv);
         });
     });
 }
-    db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
-    let commentsSection = document.getElementById("commentsSection");
-    commentsSection.innerHTML = "";
-    snapshot.forEach(doc => {
-        let data = doc.data();
-        let commentBox = document.createElement("div");
-        commentBox.classList.add("comment-box");
-        commentBox.innerHTML = `
-            <p>${data.text}</p>
-            <span class="timestamp">${new Date(data.timestamp).toLocaleString()}</span>
-            <button class="like-button" onclick="likeComment('${doc.id}', ${data.likes})">❤️ ${data.likes}</button>
-            <button class="delete-button" onclick="deleteComment('${doc.id}')">🗑 Delete</button>
-        `;
-        commentsSection.appendChild(commentBox);
+
+function deleteComment(commentId) {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+    db.collection("comments").doc(commentId).get().then((doc) => {
+        if (doc.exists && doc.data().uid === user.uid) {
+            db.collection("comments").doc(commentId).delete()
+                .then(() => {
+                    console.log("Comment deleted");
+                })
+                .catch((error) => {
+                    console.error("Error deleting comment:", error);
+                });
+        } else {
+            alert("You can only delete your own comments.");
+        }
     });
-    }
-
-    function likeComment(commentId, currentLikes) {
-        let newLikes = currentLikes + 1;
-        db.collection("comments").doc(commentId).update({
-            likes: newLikes
-        });
-    }
-
+}
 </script>
 </body>
 </html>
