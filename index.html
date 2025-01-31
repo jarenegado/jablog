@@ -265,7 +265,18 @@ function addComment(text) {
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
 }
+ function submitComment() {
+        let commentText = document.getElementById("commentInput").value;
+        if (commentText.trim() === "") return;
 
+        db.collection("comments").add({
+            text: commentText,
+            timestamp: new Date().toISOString(),
+            likes: 0
+        }).then(() => {
+            document.getElementById("commentInput").value = "";
+        });
+    }
 function loadComments() {
     const user = firebase.auth().currentUser;
     db.collection("comments").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
