@@ -253,114 +253,116 @@ Have you been to any of these places? Share your experiences in the comments bel
      appId: "1:472451020750:web:548ec6ccc3752b38415d9f"
  };
 
-       firebase.initializeApp(firebaseConfig);
- const auth = firebase.auth();
- const db = firebase.firestore();
+      firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        
+        let currentUser = null;
+        const ADMIN_UID = "9TrtSw8f0baJv9Z7paR7ieEB7182"; 
+
+      
+        function signIn() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).then((result) => {
+                console.log("User signed in: ", result.user);
+            }).catch((error) => {
+                console.error("Error signing in: ", error);
+            });
+        }
+
     
-     function signIn() {
-     const provider = new firebase.auth.GoogleAuthProvider();
-     auth.signInWithPopup(provider)
-         .then(result => {
-             console.log("Signed in:", result.user);
-             updateUI();
-         })
-         .catch(error => {
-             console.error("Sign-in error:", error);
-         });
- }
-             function signOut() {
-     auth.signOut().then(() => {
-         console.log("User signed out");
-         updateUI();
-     });
- }
+        function signOut() {
+            auth.signOut().then(() => {
+                console.log("User signed out");
+            });
+        }
 
-      auth.onAuthStateChanged(user => {
-     updateUI();
- });
+ 
+        auth.onAuthStateChanged((user) => {
+            currentUser = user;
+            const loginBtn = document.getElementById("loginBtn");
+            const logoutBtn = document.getElementById("logoutBtn");
+            const userDisplay = document.getElementById("userDisplay");
 
- function updateUI() {
-     const user = auth.currentUser;
-     if (user) {
-         document.getElementById("signInBtn").style.display = "none";
-         document.getElementById("signOutBtn").style.display = "block";
-         document.getElementById("commentInput").disabled = false;
-         document.getElementById("submitCommentBtn").disabled = false;
-     } else {
-         document.getElementById("signInBtn").style.display = "block";
-         document.getElementById("signOutBtn").style.display = "none";
-         document.getElementById("commentInput").disabled = true;
-         document.getElementById("submitCommentBtn").disabled = true;
-     }
- }
+            if (user) {
+                loginBtn.style.display = "none";
+                logoutBtn.style.display = "block";
+                userDisplay.textContent = `Signed in as ${user.displayName}`;
+            } else {
+                loginBtn.style.display = "block";
+                logoutBtn.style.display = "none";
+                userDisplay.textContent = "";
+            }
+        });
 
- function submitComment() {
-     let commentText = document.getElementById("commentInput").value;
-     if (!auth.currentUser) {
-         alert("Please sign in to comment.");
-         return;
-     }
+ 
+        function submitComment() {
+            if (!currentUser) {
+                alert("You must be signed in to comment.");
+                return;
+            }
 
-     if (commentText.trim() === "") return;
+            let commentText = document.getElementById("commentInput").value;
+            if (commentText.trim() === "") return;
 
-     db.collection("comments").add({
-         text: commentText,
-         user: auth.currentUser.displayName,
-         timestamp: new Date().toISOString(),
-         likes: 0,
-         uid: auth.currentUser.uid
-     }).then(() => {
-         document.getElementById("commentInput").value = "";
-     });
- }
+            db.collection("comments").add({
+                text: commentText,
+                userId: currentUser.uid,
+                userName: currentUser.displayName,
+                timestamp: new Date().toISOString(),
+                likes: 0
+            }).then(() => {
+                document.getElementById("commentInput").value = "";
+            });
+        }
 
- function deleteComment(commentId, commentUserId) {
-     const user = auth.currentUser;
+   
+        db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+            let commentsSection = document.getElementById("commentsSection");
+            commentsSection.innerHTML = "";
+            snapshot.forEach(doc => {
+                let data = doc.data();
+                let commentBox = document.createElement("div");
+                commentBox.classList.add("comment-box");
 
-     if (!user) {
-         alert("You must be signed in to delete comments.");
-         return;
-     }
+                let deleteButton = "";
+                if (currentUser && (currentUser.uid === ADMIN_UID)) {
+                    deleteButton = `<button class="delete-button" onclick="deleteComment('${doc.id}')">🗑 Delete</button>`;
+                }
 
-     if (user.uid !== commentUserId && user.email !== "admin@example.com") {
-         alert("You can only delete your own comments unless you're an admin.");
-         return;
-     }
+                commentBox.innerHTML = `
+                    <p><strong>${data.userName}:</strong> ${data.text}</p>
+                    <span class="timestamp">${new Date(data.timestamp).toLocaleString()}</span>
+                    <button class="like-button" onclick="likeComment('${doc.id}', ${data.likes})">❤️ ${data.likes}</button>
+                    ${deleteButton}
+                `;
+                commentsSection.appendChild(commentBox);
+            });
+        });
 
-     if (confirm("Are you sure you want to delete this comment?")) {
-         db.collection("comments").doc(commentId).delete()
-             .then(() => {
-                 console.log("Comment deleted successfully");
-             })
-             .catch(error => {
-                 console.error("Error deleting comment: ", error);
-             });
-     }
- }
+  
+        function likeComment(commentId, currentLikes) {
+            let newLikes = currentLikes + 1;
+            db.collection("comments").doc(commentId).update({ likes: newLikes });
+        }
 
- db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
-     let commentsSection = document.getElementById("commentsSection");
-     commentsSection.innerHTML = "";
-     snapshot.forEach(doc => {
-         let data = doc.data();
-         let commentBox = document.createElement("div");
-         commentBox.classList.add("comment-box");
-         commentBox.innerHTML = `
-             <p><strong>${data.user || "Anonymous"}:</strong> ${data.text}</p>
-             <span class="timestamp">${new Date(data.timestamp).toLocaleString()}</span>
-             <button class="like-button" onclick="likeComment('${doc.id}', ${data.likes})">❤️ ${data.likes}</button>
-             <button class="delete-button" onclick="deleteComment('${doc.id}', '${data.uid}')">🗑 Delete</button>
-         `;
-         commentsSection.appendChild(commentBox);
-     });
- });
 
- function likeComment(commentId, currentLikes) {
-     let newLikes = currentLikes + 1;
-     db.collection("comments").doc(commentId).update({
-         likes: newLikes
-     });
- }
+        function deleteComment(commentId) {
+            if (!currentUser || currentUser.uid !== ADMIN_UID) {
+                alert("Only the admin can delete comments.");
+                return;
+            }
+
+            if (confirm("Are you sure you want to delete this comment?")) {
+                db.collection("comments").doc(commentId).delete()
+                    .then(() => {
+                        console.log("Comment deleted successfully");
+                    })
+                    .catch(error => {
+                        console.error("Error deleting comment: ", error);
+                    });
+            }
+        }
     </script>
 </body>
 </html>
