@@ -1,11 +1,12 @@
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+   <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JA's Travel Blog</title>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
    
       <style>
         body {
@@ -231,8 +232,8 @@
         <h1><strong>WHAT'S NEXT?</strong></h1>
         <p><strong>My journey as a traveler is far from over. There are still countless destinations to explore, new cultures to experience, and more stories to tell. Through my blog, I hope to inspire fellow adventurers to step out of their comfort zones and discover the beauty of the world. Stay tuned for more travel guides, itineraries, and personal stories from my adventures.
 Have you been to any of these places? Share your experiences in the comments below! Let’s keep exploring together!</strong></p>
-        <button id="loginBtn" onclick="signIn()">Sign In with Google</button>
-        <button id="logoutBtn" onclick="signOut()" style="display: none;">Sign Out</button>
+         <button id="loginBtn" onclick="signInWithGoogle()">Sign In with Google</button>
+        <button id="logoutBtn" onclick="signOutUser()" style="display: none;">Sign Out</button>
         <p id="userDisplay"></p>
       
         <h2>Comment, Suggest, Recommend</h2>
@@ -253,32 +254,43 @@ Have you been to any of these places? Share your experiences in the comments bel
             appId: "1:472451020750:web:548ec6ccc3752b38415d9f"
         };
 
-      firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+       const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        function signInWithGoogle() {
+            const provider = new GoogleAuthProvider();
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                    console.log("User signed in: ", result.user);
+                })
+                .catch((error) => {
+                    console.error("Sign-in error: ", error);
+                });
+        }
+
+        function signOutUser() {
+            signOut(auth).then(() => {
+                console.log("User signed out");
+            });
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            const loginBtn = document.getElementById("loginBtn");
+            const logoutBtn = document.getElementById("logoutBtn");
+            const userDisplay = document.getElementById("userDisplay");
+
+            if (user) {
+                loginBtn.style.display = "none";
+                logoutBtn.style.display = "block";
+                userDisplay.textContent = `Signed in as ${user.displayName}`;
+            } else {
+                loginBtn.style.display = "block";
+                logoutBtn.style.display = "none";
+                userDisplay.textContent = "";
+            }
+        });
         
-        let currentUser = null;
-        const ADMIN_UID = "9TrtSw8f0baJv9Z7paR7ieEB7182"; 
-
-        function signIn() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-     auth.signInWithPopup(provider)
-         .then(result => {
-             console.log("Signed in:", result.user);
-             updateUI();
-         })
-         .catch(error => {
-             console.error("Sign-in error:", error);
-         });
- }
-
-        function signOut() {
-     auth.signOut().then(() => {
-         console.log("User signed out");
-         updateUI();
-     });
- }
-
        function updateUI() {
      const user = auth.currentUser;
      if (user) {
