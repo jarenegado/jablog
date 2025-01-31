@@ -257,8 +257,6 @@ Have you been to any of these places? Share your experiences in the comments bel
     if (!user) {
         alert("You must be logged in to comment.");
         return;
-    }
-
     db.collection("comments").add({
         text: text,
         uid: user.uid,
@@ -266,11 +264,17 @@ Have you been to any of these places? Share your experiences in the comments bel
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
     }
-            
+    
+    function likeComment(commentId, currentLikes) {
+        let newLikes = currentLikes + 1;
+    db.collection("comments").doc(commentId).update({
+            likes: newLikes
+        });
+    }
+             
     function loadComments() {
     const user = firebase.auth().currentUser;
-
-            db.collection("comments").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+    db.collection("comments").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
         const commentsContainer = document.getElementById("comments");
         commentsContainer.innerHTML = "";
         snapshot.forEach((doc) => {
@@ -287,16 +291,9 @@ Have you been to any of these places? Share your experiences in the comments bel
     });
 });
 
-    function likeComment(commentId, currentLikes) {
-        let newLikes = currentLikes + 1;
-        db.collection("comments").doc(commentId).update({
-            likes: newLikes
-        });
-    }
-           function deleteComment(commentId) {
+    function deleteComment(commentId) {
     const user = firebase.auth().currentUser;
     if (!user) return;
-
     db.collection("comments").doc(commentId).get().then((doc) => {
         if (doc.exists && doc.data().uid === user.uid) {
             db.collection("comments").doc(commentId).delete()
