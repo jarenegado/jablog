@@ -231,10 +231,10 @@
         <h1><strong>WHAT'S NEXT?</strong></h1>
         <p><strong>My journey as a traveler is far from over. There are still countless destinations to explore, new cultures to experience, and more stories to tell. Through my blog, I hope to inspire fellow adventurers to step out of their comfort zones and discover the beauty of the world. Stay tuned for more travel guides, itineraries, and personal stories from my adventures.
 Have you been to any of these places? Share your experiences in the comments below! Let’s keep exploring together!</strong></p>
-        <button id="loginBtn" onclick="signInWithGoogle()">Sign In with Google</button>
+        <button id="loginBtn" onclick="signIn()">Sign In with Google</button>
         <button id="logoutBtn" onclick="signOut()" style="display: none;">Sign Out</button>
         <p id="userDisplay"></p>
-        
+      
         <h2>Comment, Suggest, Recommend</h2>
         <textarea id="commentInput" placeholder="Write your comment..."></textarea><br>
         <button onclick="submitComment()">Please Recommend</button>
@@ -244,14 +244,14 @@ Have you been to any of these places? Share your experiences in the comments bel
     </div>
 
          <script>
- const firebaseConfig = {
-     apiKey: "AIzaSyBh14AuHe-3wrPZCHMOIq5b1htmw1b_oWM",
-     authDomain: "my-travel-blog-comments.firebaseapp.com",
-     projectId: "my-travel-blog-comments",
-     storageBucket: "my-travel-blog-comments.appspot.com",
-     messagingSenderId: "472451020750",
-     appId: "1:472451020750:web:548ec6ccc3752b38415d9f"
- };
+  const firebaseConfig = {
+            apiKey: "AIzaSyBh14AuHe-3wrPZCHMOIq5b1htmw1b_oWM",
+            authDomain: "my-travel-blog-comments.firebaseapp.com",
+            projectId: "my-travel-blog-comments",
+            storageBucket: "my-travel-blog-comments.appspot.com",
+            messagingSenderId: "472451020750",
+            appId: "1:472451020750:web:548ec6ccc3752b38415d9f"
+        };
 
       firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
