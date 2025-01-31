@@ -264,7 +264,7 @@ Have you been to any of these places? Share your experiences in the comments bel
             document.getElementById("commentInput").value = "";
         });
     }
-            function addComment(text) {
+      function addComment(text) {
     const user = firebase.auth().currentUser;
     if (!user) {
         alert("You must be logged in to comment.");
@@ -302,6 +302,27 @@ db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
             likes: newLikes
         });
     }
+            function loadComments() {
+    const user = firebase.auth().currentUser;
+
+    db.collection("comments").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+        const commentsContainer = document.getElementById("comments");
+        commentsContainer.innerHTML = "";
+        snapshot.forEach((doc) => {
+            const commentData = doc.data();
+            const commentId = doc.id;
+
+            const commentDiv = document.createElement("div");
+            commentDiv.innerHTML = `
+                <p>${commentData.username}: ${commentData.text}</p>
+                ${user && user.uid === commentData.uid ? `<button onclick="deleteComment('${commentId}')">Delete</button>` : ""}
+            `;
+
+            commentsContainer.appendChild(commentDiv);
+        });
+    });
+}
+
 </script>
 </body>
 </html>
