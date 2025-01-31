@@ -252,7 +252,7 @@ Have you been to any of these places? Share your experiences in the comments bel
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-function submitComment(text) {
+function addComment(text) {
     const user = firebase.auth().currentUser;
     if (!user) {
         alert("You must be logged in to comment.");
@@ -297,8 +297,53 @@ function loadComments() {
             `;
             commentsContainer.appendChild(commentDiv);
         });
+    db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+    let commentsSection = document.getElementById("commentsSection");
+    commentsSection.innerHTML = "";
+    snapshot.forEach(doc => {
+        let data = doc.data();
+        let commentBox = document.createElement("div");
+        commentBox.classList.add("comment-box");
+        commentBox.innerHTML = `
+            <p>${data.text}</p>
+            <span class="timestamp">${new Date(data.timestamp).toLocaleString()}</span>
+            <button class="like-button" onclick="likeComment('${doc.id}', ${data.likes})">❤️ ${data.likes}</button>
+            <button class="delete-button" onclick="deleteComment('${doc.id}')">🗑 Delete</button>
+        `;
+        commentsSection.appendChild(commentBox);
     });
-}
+});
+
+    function likeComment(commentId, currentLikes) {
+        let newLikes = currentLikes + 1;
+        db.collection("comments").doc(commentId).update({
+            likes: newLikes
+        });
+    }
+db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+    let commentsSection = document.getElementById("commentsSection");
+    commentsSection.innerHTML = "";
+    snapshot.forEach(doc => {
+        let data = doc.data();
+        let commentBox = document.createElement("div");
+        commentBox.classList.add("comment-box");
+        commentBox.innerHTML = `
+            <p>${data.text}</p>
+            <span class="timestamp">${new Date(data.timestamp).toLocaleString()}</span>
+            <button class="like-button" onclick="likeComment('${doc.id}', ${data.likes})">❤️ ${data.likes}</button>
+            <button class="delete-button" onclick="deleteComment('${doc.id}')">🗑 Delete</button>
+        `;
+        commentsSection.appendChild(commentBox);
+    });
+});
+
+    function likeComment(commentId, currentLikes) {
+        let newLikes = currentLikes + 1;
+        db.collection("comments").doc(commentId).update({
+            likes: newLikes
+        });
+    }
+
 </script>
 </body>
 </html>
