@@ -266,7 +266,11 @@ Have you been to any of these places? Share your experiences in the comments bel
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
     }
-db.collection("comments").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+            
+    function loadComments() {
+    const user = firebase.auth().currentUser;
+
+            db.collection("comments").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
         const commentsContainer = document.getElementById("comments");
         commentsContainer.innerHTML = "";
         snapshot.forEach((doc) => {
