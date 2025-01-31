@@ -256,11 +256,8 @@ Have you been to any of these places? Share your experiences in the comments bel
        firebase.initializeApp(firebaseConfig);
  const auth = firebase.auth();
  const db = firebase.firestore();
-
-               let currentUser = null;
-        const ADMIN_UID = "your-admin-uid";
-        
-        function signIn() {
+    
+     function signIn() {
      const provider = new firebase.auth.GoogleAuthProvider();
      auth.signInWithPopup(provider)
          .then(result => {
