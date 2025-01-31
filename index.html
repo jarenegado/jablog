@@ -251,7 +251,18 @@ Have you been to any of these places? Share your experiences in the comments bel
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+function submitComment() {
+        let commentText = document.getElementById("commentInput").value;
+        if (commentText.trim() === "") return;
 
+        db.collection("comments").add({
+            text: commentText,
+            timestamp: new Date().toISOString(),
+            likes: 0
+        }).then(() => {
+            document.getElementById("commentInput").value = "";
+        });
+    }
 function addComment(text) {
     const user = firebase.auth().currentUser;
     if (!user) {
@@ -269,7 +280,7 @@ function addComment(text) {
     const user = firebase.auth().currentUser;
     db.collection("comments").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
         const commentsContainer = document.getElementById("comments");
-        commentsContainer.innerHTML = ""; // Clear existing comments
+        commentsContainer.innerHTML = "";
         snapshot.forEach((doc) => {
             const commentData = doc.data();
             const commentId = doc.id;
