@@ -6,34 +6,135 @@
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
-       <style>
+      <style>
         body {
             font-family: Century Gothic, sans-serif;
+            font-weight: 250;
+            margin: 0;
+            padding: 0;
             background: url('ja29.jpg') no-repeat center center/cover;
             text-align: left;
-        }
+            }
         .container {
             max-width: 800px;
             margin: 10px auto;
             background: rgba(255, 255, 255, 0.5);
             padding: 20px;
             border-radius: 10px;
-        }
-        textarea, button {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            }
+        .logo {
+            max-width: 300px;
+            margin-bottom: 0px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+        .section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            }
+
+        .section img {
+            width: 120px;
+            height: auto;
+            margin-right: 15px;
+            }
+        .section p {
+            flex: 1;
+            }
+         nav ul {
+            list-style: none;
+            padding: 0;
+            }
+         nav ul li {
+            display: inline;
+            margin: 10px;
+            }
+        .nav-button {
+            background: #590808;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: background 0.3s ease;
+            }
+       .nav-button:hover {
+            background: #ff4500;
+            transform: scale(1.1);
+            }
+        h1 {
+            color: #000;
+            }
+        p {
+            color: #000;
+            line-height: 1.6;
+            }
+        .home-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #880E4F;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            }
+        .home-button:hover {
+            background-color: #d618bd;
+            }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #f8f9fa;
+            }
+        textarea {
             width: 80%;
+            height: 60px;
             padding: 10px;
             border-radius: 10px;
-            margin: 5px 0;
-        }
+            border: 1px solid #ccc;
+            resize: none;
+            }
+        button {
+            background-color: #1DB954;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 5px;
+            }
+        button:hover {
+            background-color: #000;
+            }
         .comment-box {
             background: white;
+            border: 1px solid #ddd;
             padding: 10px;
             margin: 5px auto;
+            width: 80%;
             border-radius: 10px;
-        }
-        .like-button, .delete-button {
+            text-align: left;
+            font-size: 10px;
+            color: gray;
+            }
+        .timestamp {
+            font-size: 10px;
+            color: gray;
+            }
+        .like-button {
+            background: none;
+            border: none;
+            color: #ff4757;
             cursor: pointer;
-        }
+            font-size: 12px;
+            margin-left: 10px;
+            }
+        .like-button:hover {
+            color: #e84118;
+            }
     </style>
   </head>
 
