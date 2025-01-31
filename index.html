@@ -264,7 +264,7 @@ Have you been to any of these places? Share your experiences in the comments bel
             document.getElementById("commentInput").value = "";
         });
     }
-      function addComment(text) {
+    function addComment(text) {
     const user = firebase.auth().currentUser;
     if (!user) {
         alert("You must be logged in to comment.");
@@ -278,8 +278,27 @@ Have you been to any of these places? Share your experiences in the comments bel
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
 }
+    function loadComments() {
+    const user = firebase.auth().currentUser;
 
-db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+    db.collection("comments").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+        const commentsContainer = document.getElementById("comments");
+        commentsContainer.innerHTML = "";
+        snapshot.forEach((doc) => {
+            const commentData = doc.data();
+            const commentId = doc.id;
+
+            const commentDiv = document.createElement("div");
+            commentDiv.innerHTML = `
+                <p>${commentData.username}: ${commentData.text}</p>
+                ${user && user.uid === commentData.uid ? `<button onclick="deleteComment('${commentId}')">Delete</button>` : ""}
+            `;
+
+            commentsContainer.appendChild(commentDiv);
+        });
+    });
+}
+    db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
     let commentsSection = document.getElementById("commentsSection");
     commentsSection.innerHTML = "";
     snapshot.forEach(doc => {
@@ -302,27 +321,6 @@ db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
             likes: newLikes
         });
     }
-  
-            function loadComments() {
-    const user = firebase.auth().currentUser;
-
-    db.collection("comments").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
-        const commentsContainer = document.getElementById("comments");
-        commentsContainer.innerHTML = "";
-        snapshot.forEach((doc) => {
-            const commentData = doc.data();
-            const commentId = doc.id;
-
-            const commentDiv = document.createElement("div");
-            commentDiv.innerHTML = `
-                <p>${commentData.username}: ${commentData.text}</p>
-                ${user && user.uid === commentData.uid ? `<button onclick="deleteComment('${commentId}')">Delete</button>` : ""}
-            `;
-
-            commentsContainer.appendChild(commentDiv);
-        });
-    });
-}
 
 </script>
 </body>
