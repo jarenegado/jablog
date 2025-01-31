@@ -267,19 +267,7 @@ Have you been to any of these places? Share your experiences in the comments bel
     });
     }
             
-    function submitComment() {
-        let commentText = document.getElementById("commentInput").value;
-        if (commentText.trim() === "") return;
-
-        db.collection("comments").add({
-            text: commentText,
-            timestamp: new Date().toISOString(),
-            likes: 0
-        }).then(() => {
-            document.getElementById("commentInput").value = "";
-        });
-    }
-db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+  db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
     let commentsSection = document.getElementById("commentsSection");
     commentsSection.innerHTML = "";
     snapshot.forEach(doc => {
